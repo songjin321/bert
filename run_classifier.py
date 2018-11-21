@@ -607,7 +607,7 @@ def model_fn_builder(bert_config, num_labels, init_checkpoint, learning_rate,
         num_labels, use_one_hot_embeddings)
 
     tvars = tf.trainable_variables()
-
+    initialized_variable_names = {}
     scaffold_fn = None
     if init_checkpoint:
       (assignment_map, initialized_variable_names

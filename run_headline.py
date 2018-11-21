@@ -24,7 +24,7 @@ import os
 import modeling
 import optimization
 import tokenization
-import headline_tokenlization
+import headline_tokenization
 import tensorflow as tf
 import json
 import math
@@ -322,7 +322,7 @@ def file_based_convert_examples_to_features(
         features["input_mask"] = create_int_feature(feature.input_mask)
         features["segment_ids"] = create_int_feature(feature.segment_ids)
         features["label_ids"] = create_int_feature(feature.label_ids)
-        features["label_length"] = create_int_feature(feature.label_length)
+        features["label_length"] = create_int_feature([feature.label_length])
 
         tf_example = tf.train.Example(
             features=tf.train.Features(feature=features))
@@ -400,7 +400,7 @@ def create_model(bert_config, is_training, input_ids, input_mask, segment_ids, l
     decoder_initial_state = model.get_pooled_output()
     batch_size = tf.shape(decoder_initial_state)[0]
     num_units = 1024
-    headline_vocab_size = 3000
+    headline_vocab_size = 10000
     embedding_size = 256
     start_token = 1
     end_token = 2
@@ -408,7 +408,7 @@ def create_model(bert_config, is_training, input_ids, input_mask, segment_ids, l
 
     ## decoder input variables
     # decoder_inputs: [batch_size, max_time_steps]
-    decoder_inputs = label_ids
+    decoder_inputs = label_ids[0]
 
     # decoder_inputs_length: [batch_size]
     decoder_inputs_length = label_length
@@ -703,7 +703,7 @@ def main(_):
 
     tokenizer = tokenization.FullTokenizer(
         vocab_file=FLAGS.vocab_file, do_lower_case=FLAGS.do_lower_case)
-    headline_tokenizer = headline_tokenlization.HeadLineTokenizer()
+    headline_tokenizer = headline_tokenization.HeadLineTokenizer()
 
     tpu_cluster_resolver = None
     if FLAGS.use_tpu and FLAGS.tpu_name:

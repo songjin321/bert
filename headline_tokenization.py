@@ -2,6 +2,7 @@ import unicodedata
 import re
 import tensorflow as tf
 import collections
+from collections import Counter
 # Converts the unicode file to ascii
 def unicode_to_ascii(s):
     return ''.join(c for c in unicodedata.normalize('NFD', s)
@@ -45,14 +46,15 @@ class HeadLineTokenizer(object):
         """create a vocabulary from train examples"""
         lang = [preprocess_sentence(example.label) for example in train_examples]
         self.vocab = set()
-        for phrase in lang:
-            self.vocab.update(phrase.split(' '))
-        self.vocab = sorted(self.vocab) 
+        vocabcount = Counter(w for txt in lang for w in txt.split())
+        vocab = [item[0] for item in vocabcount.most_common()]
+        self.vocab = vocab[:10000-3]
         self.word2idx['<pad>'] = 0
         self.word2idx['<start>'] = 1
         self.word2idx['<end>'] = 2
+        self.word2idx['<unkown>'] = 3
         for index, word in enumerate(self.vocab):
-            self.word2idx[word] = index + 3            
+            self.word2idx[word] = index + 4            
         for word, index in self.word2idx.items():
             self.idx2word[index] = word
 
@@ -74,12 +76,18 @@ class HeadLineTokenizer(object):
     def convert_tokens_to_ids(self, tokens):
         output = []
         for token in tokens:
-            output.append(self.word2idx[token])
+            if token in self.word2idx:
+                output.append(self.word2idx[token])
+            else:
+                output.append(self.word2idx['<unkown>'])
         return output
     def convert_ids_to_tokens(self, ids):
         output = []
         for id in ids:
-            output.append(self.idx2word[id])
+            if id in self.idx2word:
+                output.append(self.idx2word[id])
+            else:
+                output.append('<unkown>')
         return output
 
 ## stanford output

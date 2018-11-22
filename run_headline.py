@@ -389,7 +389,7 @@ def create_model(bert_config, is_training, input_ids, input_mask, segment_ids, l
         input_mask=input_mask,
         token_type_ids=segment_ids,
         use_one_hot_embeddings=use_one_hot_embeddings)
-    tf.logging.info("create bert model ok")
+    tf.logging.info(" create bert model ok")
     # In the demo, we are doing a simple classification task on the entire
     # segment.
     #
@@ -408,10 +408,10 @@ def create_model(bert_config, is_training, input_ids, input_mask, segment_ids, l
     tf.logging.info(" the shape of decoder_initial_state = %s" % decoder_initial_state.shape)
     ## decoder input variables
     # decoder_inputs: [batch_size, max_time_steps]
-    decoder_inputs = label_ids[0]
+    decoder_inputs = label_ids
 
     # decoder_inputs_length: [batch_size]
-    decoder_inputs_length = label_length[0]
+    decoder_inputs_length = label_length
 
     decoder_start_token = tf.ones(
                 shape=[batch_size, 1], dtype=tf.int32) * start_token
